@@ -1,0 +1,21 @@
+
+
+{{ define "main" }}
+<div class="post">
+  <h1>{{ .Title }}</h1>
+  {{ .Content }}
+
+  <h2>Contents</h2>
+<ul class="fa-ul">
+{{ range .Site.RegularPages -}}
+  <li class="post-title" >
+      <span class="fa-li" style="--fa-li-width: 2em;"><i class="fa-solid fa-file"></i></span> <a href="{{ .Permalink }}index.html">{{ .Title }}</a><br/>
+      <p style="color: gray;"> {{ .Summary | markdownify }}</p>
+  </li>
+{{- end }}
+</ul>
+
+</div>
+
+{{ end }}
+

@@ -1,0 +1,1 @@
+FlatMap<std::slice::Iter<'_, std::collections::HashMap<String, Progress>>, std::collections::hash_map::Iter<'_, String, Progress>, {closure@exercises/iterators/iterators5.rs:71:23: 71:26}>

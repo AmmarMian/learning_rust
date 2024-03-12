@@ -1,0 +1,126 @@
+<!-- Taken from: https://github.com/shen-yu/hugo-chart -->
+{{ $w := default "100" (.Get 0) }}
+{{ $h := default "300" (.Get 1) }}
+{{ $zoom:= default false (.Get 2) }}
+{{ $r := ( .Inner | chomp) }}
+{{ $seed := "foo" }}
+{{ $id := delimit (shuffle (split (md5 $seed) "" )) "" }}
+
+<style>
+.btn {
+  display: inline-block;
+  outline: 0;
+  border: none;
+  cursor: pointer;
+  height: 15px;
+  padding: 12px;
+  padding-bottom: 20px;
+  text-align: center;
+  border-radius: 50px;
+  background-color: #2222220d;
+  color: #222;
+  font-size: 11px;
+  font-weight: 300;
+}
+
+@media (max-width: 550px) {
+  .btn {
+    margin-top: 10px;
+  }
+}
+
+.btn:hover{
+  background-color: #222222;
+  color: #fff;
+}
+
+#btncontainer{
+  text-align: center;
+  margin-left:0px;
+  margin-top:10px;
+}
+
+
+
+</style>
+
+{{if $zoom}}
+<div style="width: {{ $w }}%;height: {{ $h }}px;margin: 0 auto; margin-bottom: 70px">
+    <canvas id="{{ $id }}"></canvas>
+  <div id="btncontainer">
+    <button id="resetZoom-{{ $id }}" class="btn btn-primary"><i class="fa-solid fa-house"></i> Reset Zoom</button>
+    <button id="toggleZoom-{{ $id }}" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Enable Zoom</button>
+      </div>
+</div>
+{{else}}
+<div style="width: {{ $w }}%;height: {{ $h }}px;margin: 0 auto;">
+    <canvas id="{{ $id }}"></canvas>
+</div>
+{{end}}
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script> -->
+<!-- <script src=" -->
+<!-- https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js -->
+<!-- "></script> -->
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script> -->
+<!--   <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js" integrity="sha512-UXumZrZNiOwnTcZSHLOfcTs0aos2MzBWHXOHOuB0J/R44QB0dwY5JgfbvljXcklVf65Gc4El6RjZ+lnwd2az2g==" crossorigin="anonymous"></script> -->
+<!--   <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/0.7.7/chartjs-plugin-zoom.js" integrity="sha512-qeclqxc+2KW7GtbmHcj/Ev5eBoYpPnuAcPqusYRIfvaC9OWHlDwu1BrIVPYvfNDG+SRIRiPIokiSvhlLJXDqsw==" crossorigin="anonymous"></script> -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.js" integrity="sha512-d6nObkPJgV791iTGuBoVC9Aa2iecqzJRE0Jiqvk85BhLHAPhWqkuBiQb1xz2jvuHNqHLYoN3ymPfpiB1o+Zgpw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.2.1/chartjs-plugin-zoom.js" integrity="sha512-7X7B4dUsqfSxUe5m8NELendyUKx+xwZg4wSFECgBIPGaMSLS6e6oDGkxfJsFOlPADqIwkrP/pI9PihypuWFbEw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script type="text/javascript">
+    var ctx = document.getElementById('{{ $id }}').getContext('2d');
+    var options = {{ $r | safeJS }};
+    {{if $zoom}}
+    console.log("zoom enabled");
+    if (options.options === undefined) {
+      options.options = {};
+    }
+    if (options.options.plugins === undefined) {
+      options.options.plugins = {};
+    }
+    options.options.plugins['zoom'] = {
+      zoom: {
+        mode: 'xy',
+        drag: {
+          enabled: false,
+          borderColor: 'rgb(54, 162, 235)',
+          borderWidth: 1,
+          backgroundColor: 'rgba(54, 162, 235, 0.3)'
+        },
+        pinch: {
+          enabled: false,
+        },
+      }
+    };
+    {{end}}
+
+    if (typeof chartDict === 'undefined') {
+      chartDict = {};
+    }
+    var chart = new Chart(ctx, options);
+    chartDict['{{ $id }}'] = chart;
+
+
+    {{if $zoom}}
+      resetZoomBtn = (chart) => {
+        
+        chart.resetZoom()
+        
+      };
+    document.getElementById('resetZoom-{{$id}}').addEventListener('click', 
+        () => resetZoomBtn(chartDict['{{ $id }}']));
+    document.getElementById('toggleZoom-{{$id}}').addEventListener('click', 
+      () => {
+        chartDict['{{ $id }}'].options.plugins.zoom.pan.enabled = !chartDict['{{ $id }}'].options.plugins.zoom.pan.enabled;
+        chartDict['{{ $id }}'].options.plugins.zoom.zoom.drag.enabled = !chartDict['{{ $id }}'].options.plugins.zoom.zoom.drag.enabled;
+        chartDict['{{ $id }}'].update();
+        document.getElementById('toggleZoom-{{$id}}').innerHTML = chartDict['{{ $id }}'].options.plugins.zoom.pan.enabled ? '<i class="fa-solid fa-magnifying-glass"></i>Disable Zoom' : '<i class="fa-solid fa-magnifying-glass"></i> Enable Zoom';
+      });
+    {{end}}
+</script>
+

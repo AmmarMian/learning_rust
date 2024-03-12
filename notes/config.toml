@@ -1,0 +1,39 @@
+baseURL = ""
+relativeURLs = true
+languageCode = "en-us"
+theme = ["hyde", "hugo-cite"]
+title = """
+Rust
+"""
+
+[params]
+disqusShortname = ""
+googleAnalytics = ""
+layoutReverse = false
+description = """
+Some notes about learning Rust.
+"""
+math = true
+copyright = """
+Made by <a href="http://ammarmian.github.io">Ammar Mian</a>, thanks to <a href="https://github.com/spf13/hyde">Hyde</a> theme.
+
+@2023 Université Savoie Mont-Blanc. All rights reserved.
+"""
+fontawesome = true
+
+[params.mermaid]
+  theme = "light"
+  align = "center"
+
+
+[markup.goldmark.renderer]
+ unsafe = true
+
+[markup]
+  [markup.highlight]
+    lineNos = true
+    lineNumbersInTable = false
+    guessSyntax = false
+    style = 'nord'
+
+

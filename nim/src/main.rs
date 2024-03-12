@@ -1,0 +1,180 @@
+/*
+Nim game implementation in Rust by a newbie
+Author: Ammar Mian
+Date: 27/02/24
+*/
+
+use std::io::{self, Write};
+
+mod core {
+    use std::{fmt, num::ParseIntError};
+
+    #[derive(PartialEq, Debug)]
+    pub struct StickNumber {
+        remaining: u8,
+        total: u8,
+        min_remove: u8,
+        max_remove: u8,
+    }
+
+    #[derive(PartialEq, Debug)]
+    pub enum StickNumberError {
+        RemainingNegative,
+        TakeOverMax,
+        TakeUnderMin,
+        ParsingError,
+    }
+
+    impl StickNumber {
+        pub fn new(total: u8, min_remove: u8, max_remove: u8) -> StickNumber {
+            let remaining = total;
+            StickNumber {
+                remaining,
+                total,
+                min_remove,
+                max_remove,
+            }
+        }
+
+        pub fn get_remaining(&self) -> u8 {
+            self.remaining
+        }
+
+        fn verify_remove_value(
+            &self,
+            value: Result<u8, ParseIntError>,
+        ) -> Result<u8, StickNumberError> {
+            match value {
+                Ok(val) => {
+                    if val > self.max_remove {
+                        Err(StickNumberError::TakeOverMax)
+                    } else if val < self.min_remove {
+                        Err(StickNumberError::TakeUnderMin)
+                    } else if val > self.remaining {
+                        Err(StickNumberError::RemainingNegative)
+                    } else {
+                        Ok(val)
+                    }
+                }
+                Err(_) => Err(StickNumberError::ParsingError),
+            }
+        }
+
+        pub fn remove_sticks(
+            &mut self,
+            value: Result<u8, ParseIntError>,
+        ) -> Result<u8, StickNumberError> {
+            let val = self.verify_remove_value(value)?;
+            self.remaining -= val;
+            Ok(self.remaining)
+        }
+    }
+
+    impl fmt::Display for StickNumber {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let hashtags_str = "#".repeat(self.remaining.into());
+            let space_str = " ".repeat((self.total - self.remaining).into());
+            write!(
+                f,
+                "{}/{}[{}{}]",
+                self.remaining, self.total, hashtags_str, space_str
+            )
+        }
+    }
+
+    impl fmt::Display for StickNumberError {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            match self {
+                StickNumberError::RemainingNegative => {
+                    write!(f, "Taking that many sticks will lead to a negative number")
+                }
+                StickNumberError::TakeOverMax => {
+                    write!(f, "Trying to take over the maximum limit")
+                }
+                StickNumberError::TakeUnderMin => {
+                    write!(f, "Trying to take under the minimum limit")
+                }
+                StickNumberError::ParsingError => {
+                    write!(f, "Entered value is not compatible with u8")
+                }
+            }
+        }
+    }
+}
+
+fn read_number_from_terminal<T: std::str::FromStr>() -> Result<T, T::Err> {
+    let mut input_string = String::new();
+    io::stdout().flush().unwrap();
+    io::stdin()
+        .read_line(&mut input_string)
+        .expect("Failed to read line");
+    let number = input_string.trim().parse::<T>()?;
+    Ok(number)
+}
+
+fn read_string_from_terminal() -> String {
+    let mut input_string = String::new();
+    io::stdout().flush().unwrap();
+    io::stdin()
+        .read_line(&mut input_string)
+        .expect("Failed to read line");
+    String::from(input_string.trim_end_matches('\n'))
+}
+
+fn main() {
+    println!("󰊖  | Welcome to Nim Game!");
+    println!("{}", "-".repeat(80));
+
+    let mut player_names = vec![String::new(), String::new()];
+    for (i, name) in player_names.iter_mut().enumerate() {
+        println!("  | Please enter the name of player {}: ", i + 1);
+        *name = read_string_from_terminal();
+    }
+
+    let mut total = 0;
+    println!("  | Please enter a number of total sticks:");
+    while total == 0 {
+        match read_number_from_terminal::<u8>() {
+            Ok(val) => {
+                total = val;
+            }
+            Err(e) => {
+                println!("  | Error: {}", e);
+                println!("  | Please enter a valid number of total sticks:");
+            }
+        };
+    }
+    println!("{}", "-".repeat(80));
+
+    let mut sticks = core::StickNumber::new(total, 1, 3);
+    println!("  | Remaining sticks:");
+    println!("{}", sticks);
+
+    let mut curr_player = 0;
+    let mut number_turns = 0;
+    while sticks.get_remaining() > 0 {
+        println!(
+            " | Player {} - {}: ",
+            curr_player + 1,
+            player_names[curr_player]
+        );
+
+        println!("  | How many to remove (min={}, max={})", 1, 3);
+        let remaining_sticks = read_number_from_terminal::<u8>();
+        match sticks.remove_sticks(remaining_sticks) {
+            Ok(_) => {
+                print!("  | ");
+                println!("{}\n", sticks);
+                curr_player = (curr_player + 1) % 2;
+                number_turns += 1;
+                println!("{}", "-".repeat(50));
+            }
+            Err(e) => println!("  | Error: {}", e),
+        };
+    }
+
+    println!(
+        "✌️  | Game won by {} in {} turns",
+        player_names[curr_player], number_turns
+    );
+}

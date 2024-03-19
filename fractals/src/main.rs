@@ -15,16 +15,17 @@ pub fn compute_bands_corners(
         upper_left_init: Complex<f64>,
         lower_right_init: Complex<f64>
     ) -> (Vec<Complex<f64>>, Vec<Complex<f64>>) {
+    let delta_im = (upper_left_init.im - lower_right_init.im) / (n_threads as f64);
     let upper_left: Vec<Complex<f64>> = (0..n_threads)
         .map(|i| Complex {
             re: upper_left_init.re,
-            im: upper_left_init.im - (i as f64) * 2.0 / (n_threads as f64),
+            im: upper_left_init.im - (i as f64) * delta_im
         })
         .collect();
     let lower_right: Vec<Complex<f64>> = (0..n_threads)
         .map(|i| Complex {
             re: lower_right_init.re,
-            im: upper_left_init.im - (i as f64 + 1.0) * 2.0 / (n_threads as f64),
+            im: upper_left_init.im - (i as f64 + 1.0) * delta_im
         })
         .collect();
     (upper_left, lower_right)
@@ -340,7 +341,7 @@ fn main() {
             })
             .unwrap();
 
-            println!("Threads joined in {} seconds", now.elapsed().as_secs());
+            println!("Threads joined in {} seconds", now.elapsed().as_millis() as f64 / 1000.0);
 
             // Write to fractal.png
             println!("Writing Image to {}", output);

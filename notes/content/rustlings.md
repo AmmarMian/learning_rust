@@ -4,8 +4,7 @@ title: Rustlings
 menu:
   main:
     weight: 2
-bibFile: content/bibliography.json
-mermaid: true
+mermaid: false
 toc: true
 ---
 
@@ -165,3 +164,54 @@ Here, 'a is a named lifetime parameter. The annotations tell the compiler that b
 
 * Iterating over  vec with `iter` or `iter_mut` gives references to the elements. So if we ahd `&str`, now we have `&&str`.
 
+
+## Cow
+
+It is a smart pointer allowing to work with either owned or borrowed data. It is useful when we want to avoid unnecessary allocations.
+
+If we pass a reference: `Cow::from(&mut s)`, the Cow will contain a reference to the string. If we pass an owned value: `Cow::from(s)`, the Cow will contain the owned value. This means a few things:
+* When we pass a mutable reference, the data will be cloned if changed and will return a `Cow::Owned` value to a new owned value.
+* If we do not modify the data, the `Cow` will return a `Cow::Borrowed` value with a reference to the original data.
+* ¨If we pass a value, it will always return a `Cow::Owned` value. That is because the data is owned as usual.
+
+## Multiple producers, single consumer (mspc)
+
+When sending a message through a thread, the `spawn(move ||...)` takes ownership of the `tx` transmitter so we can't use it again. We need to clone it to use it in another thread.
+
+See [here](https://doc.rust-lang.org/book/ch16-02-message-passing.html):
+```rust
+let (tx, rx) = mpsc::channel();
+
+let tx1 = tx.clone();
+thread::spawn(move || {
+    let vals = vec![
+        String::from("hi"),
+        String::from("from"),
+        String::from("the"),
+        String::from("thread"),
+    ];
+
+    for val in vals {
+        tx1.send(val).unwrap();
+        thread::sleep(Duration::from_secs(1));
+    }
+});
+
+thread::spawn(move || {
+    let vals = vec![
+        String::from("more"),
+        String::from("messages"),
+        String::from("for"),
+        String::from("you"),
+    ];
+
+    for val in vals {
+        tx.send(val).unwrap();
+        thread::sleep(Duration::from_secs(1));
+    }
+});
+
+for received in rx {
+    println!("Got: {}", received);
+}
+```

@@ -1,42 +1,48 @@
 mod datastructures;
-use datastructures::custom_datastructures::LinkedList;
+use datastructures::linked_list::List;
 
 fn main() {
 
     println!("Int List\n--------");
-    let a = LinkedList::List(3, Box::new(LinkedList::Nil));
-    let b = LinkedList::List(4, Box::new(a));
-    let c = LinkedList::List(5, Box::new(b));
-    let list = LinkedList::List(6, Box::new(c));
-    match list {
-        LinkedList::List(val, _) => println!("First element is {}", val),
-        LinkedList::Nil => println!("List is empty!"),
+    let mut list_int = List::new();
+    list_int.append(1);
+    list_int.append(2);
+    list_int.append(3);
+    list_int.append(-4);
+    println!("List: {}", list_int);
+    let _ = list_int.pop_last();
+    println!("List after pop: {}", list_int);
+    println!("Value at index 1: {}", list_int[1]);
+    println!("Iterating over list");
+    for value in list_int.iter_mut() {
+        println!("{}", value);
     }
-    let idx = 2;
-    let val = list[idx];
-    println!("Element 2 is {}", val);
-    println!("List display {}", list);
-    println!("Iterating over list:");
-    let max = list.into_iter()
-                   .max();
-    println!("Max is {}", max.unwrap());
-
-
 
 
     println!("\nString List\n-----------");
-    let a = LinkedList::List("a", Box::new(LinkedList::Nil));
-    let b = LinkedList::List("b", Box::new(a));
-    let c = LinkedList::List("c", Box::new(b));
-    let list = LinkedList::List("d", Box::new(c));
-    match list {
-        LinkedList::List(val, _) => println!("First element is {}", val),
-        LinkedList::Nil => println!("List is empty!"),
-    }
-    let idx = 2;
-    let val = list[idx];
-    println!("Element 2 is {}", val);
-    println!("List display {}", list);
-
-
+    let mut list_string = List::new();
+    list_string.append("One".to_string());
+    list_string.append("Two".to_string());
+    list_string.append("Three".to_string());
+    list_string.append("Four".to_string());
+    println!("List: {}", list_string);
+    let _ = list_string.pop_last();
+    println!("List after pop: {}", list_string);
+    let _ = list_string.pop_last();
+    println!("List after 2 pops: {}", list_string);
+    let _ = list_string.pop_last();
+    println!("List after 3 pops: {}", list_string);
+    let _ = list_string.pop_last();
+    println!("List after 4 pops: {}", list_string);
+    let _ = list_string.pop_last();
+    println!("List after 5 pops: {}", list_string);
+    list_string.append("Five".to_string());
+    println!("List after appends: {}", list_string);
+    let mut new_list = List::new();
+    new_list.append("Blabla".to_string());
+    new_list.append("Bla".to_string());
+    println!("New List: {}", new_list);
+    list_string.merge(new_list);
+    println!("List after merge: {}", list_string);
 }
+

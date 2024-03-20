@@ -55,6 +55,13 @@ fn main() {
 
 When a function takes ownership of a variable, the original variable is considered "moved" at the point of the function call, not at the end of the function. This means the original variable is no longer valid after it has been passed to the function, and Rust's ownership rules ensure that it cannot be used accidentally after the move. The "drop" happens for the value at the end of the scope where the new owner (the function parameter) resides, not where the original variable was defined.
 
+{{<info>}}
+* A `match` expression move (takes ownership) of the value that matches the pattern. If we do not want to move the value, we can use a reference to the value in the pattern.
+* The keyword `ref` is **super useful** when we want to take a reference to a value in a pattern without moving it. We can also add `mut` to make it mutable: `Some(ref mut val)`.
+{{</info>}}
+
+
+
 ## Structs
 
 Akin to classes but with a few tweaks:
@@ -215,3 +222,6 @@ for received in rx {
     println!("Got: {}", received);
 }
 ```
+
+
+

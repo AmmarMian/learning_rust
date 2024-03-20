@@ -6,11 +6,11 @@ This project is around playing with smart pointers to implement recursive data s
 
 ### Reading
 
-- [] Read more about Box, Rc, RefCell, and Cell.
-- [] Find some neat algorithms to implement.
+- [] (started) Read more about Box, Rc, RefCell, and Cell.
+- [x] Find some neat algorithms to implement.
 
 ### Data structures
-- [] Implement a simple linked list using Box.
+- [x] Implement a simple linked list using Box.
 - [] Implement a simple binary tree using Box.
 - [] Implement a simple graph using Box.
 
